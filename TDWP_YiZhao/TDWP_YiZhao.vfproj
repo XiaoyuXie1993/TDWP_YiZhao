@@ -35,7 +35,7 @@
 				<Tool Name="VFPostBuildEventTool"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" MultiProcessorCompilation="true" AutoParallelThreshold="80" VectorizationThreshold="80" AdditionalIncludeDirectories="C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.1.156\windows\mpi\intel64\include" RuntimeLibrary="rtMultiThreadedDLL" UseMkl="mklSequential"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" MultiProcessorCompilation="true" AutoParallelThreshold="80" VectorizationThreshold="80" AdditionalIncludeDirectories="C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.1.156\windows\mpi\intel64\include" RuntimeLibrary="rtMultiThreadedDLL" UseMkl="mklParallel"/>
 				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2018.1.156\windows\mpi\intel64\lib" SubSystem="subSystemConsole" AdditionalDependencies="impi.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
