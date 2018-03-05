@@ -1,4 +1,3 @@
-
 !! solve TDSE using Chebyshev polynomials methods
 subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
 
