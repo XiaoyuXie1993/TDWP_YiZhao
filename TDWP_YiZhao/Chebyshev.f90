@@ -26,7 +26,7 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
     end do
     tx = tx / b
     call expansion(n_eq, tx, jt, U)
-    U = U * cdexp(dcmplx(0.0d0, -1.0d0) * interval / hbar)
+    U = U * cdexp(dcmplx(0.0d0, -1.0d0) * interval * a / hbar)
     if(i == 1) then
       call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y0, n_eq, 0.0d0, y(i, :), n_eq)
     else
