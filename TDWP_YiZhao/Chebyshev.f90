@@ -7,9 +7,9 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
   double precision, intent(in) :: t_total
   double complex, intent(in) :: y0(n_eq)
   double complex, intent(out) :: y(n_time, n_eq)
-  double precision :: time, interval, a, b
-  double precision :: tx(n_eq, n_eq)
-  double precision :: jt
+  double precision :: time, interval!, a, b
+!  double precision :: tx(n_eq, n_eq)
+!  double precision :: jt
   double precision :: Hamiltonian(n_eq, n_eq)
   double complex :: U(n_eq, n_eq)
 
@@ -18,24 +18,50 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
   do i = 1, n_time
     time = i * interval
     call get_Hamiltonian(time, Hamiltonian)
-    call diagonal(n_eq, Hamiltonian, a, b)
-    jt = - b * interval / hbar
-    tx = Hamiltonian
-    do j = 1, n_eq
-      tx(j, j) = tx(j, j) - a
-    end do
-    tx = tx / b
-    call expansion(n_eq, tx, jt, U)
-    U = U * cdexp(dcmplx(0.0d0, -1.0d0) * interval * a / hbar)
+!    call diagonal(n_eq, Hamiltonian, a, b)
+!    jt = - b * interval / hbar
+!    tx = Hamiltonian
+!    do j = 1, n_eq
+!      tx(j, j) = tx(j, j) - a
+!    end do
+!    tx = tx / b
+!    call expansion(n_eq, tx, jt, U)
+!    U = U * cdexp(dcmplx(0.0d0, -1.0d0) * interval * a / hbar)
+    call expansion_Hamiltonian(n_eq, Hamiltonian, - interval, U)
     if(i == 1) then
       call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y0, n_eq, 0.0d0, y(i, :), n_eq)
     else
       call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y(i - 1, :), n_eq, 0.0d0, y(i, :), n_eq)
     end if
   end do
-      
-  
+
+
 end subroutine
+
+!! calculate exp(i * H * t / hbar) using Chebyshev polynomials methods for real Hamiltonian
+subroutine expansion_Hamiltonian(n_matrix, H, t, expiHt)
+
+  use constants
+
+  integer, intent(in) :: n_matrix
+  double precision, intent(in) :: t
+  double precision, intent(in) :: H(n_matrix, n_matrix)
+  double complex, intent(out) :: expiHt(n_matrix, n_matrix)
+  double precision :: Ha, Hb
+  double precision :: tH(n_matrix, n_matrix)
+  double precision :: jt
+
+  call diagonal(n_matrix, H, Ha, Hb)
+  jt = Hb * t / hbar
+  tH = H
+  do i = 1, n_Matrix
+    tH(i, i) = tH(i, i) - Ha
+  end do
+  tH = tH / Hb
+  call expansion(n_Matrix, tH, jt, expiHt)
+  expiHt = expiHt * cdexp(dcmplx(0.0d0, 1.0d0) * t * Ha / hbar)
+
+  end subroutine
   
 !! calculate exp(i * x * time) using Chebyshev polynomials (exp(ixt) = sum_n h * i ^ n * Jn(x) * Tn(t)£©
 subroutine expansion(n_matrix, x, time, expixt)
