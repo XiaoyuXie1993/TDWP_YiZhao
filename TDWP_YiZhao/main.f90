@@ -1,4 +1,3 @@
-
 !! time evolution of a spin-boson system using parallel programing via mpi (J. Chem. Phys. 2011, 135, 134110)
 program spin_boson
   
