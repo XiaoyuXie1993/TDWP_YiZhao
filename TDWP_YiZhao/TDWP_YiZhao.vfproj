@@ -52,5 +52,6 @@
 		<File RelativePath=".\Chebyshev.f90"/>
 		<File RelativePath=".\get_Hamiltonian.f90"/>
 		<File RelativePath=".\main.f90"/>
+		<File RelativePath=".\module.f90"/>
 		<File RelativePath=".\Runge_Kutta.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>
