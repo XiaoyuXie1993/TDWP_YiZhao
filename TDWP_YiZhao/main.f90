@@ -8,12 +8,12 @@ program dynamics
   integer, allocatable :: stat(:)
   double precision :: density
   double complex, allocatable :: psi(:, :, :)
-  double precision, allocatable :: diff_density(:)
+  double precision, allocatable :: population(:, :)
   
   call initial()
-  allocate(diff_density(time_steps))
+  allocate(stat(N_basis))
+  allocate(population(time_steps, N_basis))
   call discretization()
-  allocate(stat(N_basis * time_steps))
 
 !  write(*, '(i4, 2f14.7)') time_steps, interval_time, total_time
 
@@ -23,7 +23,7 @@ program dynamics
   allocate(psi(n_traj_per_para, time_steps, N_basis))
   call MPI_COMM_RANK(MPI_COMM_WORLD, my_id, ierr)
 
-  diff_density = 0.0d0
+  population = 0.0d0
   do i = 1, n_traj_per_para
 !  write(*, *) i, my_id
     call init_random_seed(my_id)
@@ -33,14 +33,14 @@ program dynamics
     if(my_id /= 0) then
       call MPI_SEND(psi(i, :, :), time_steps * N_basis, MPI_DOUBLE_COMPLEX, 0, i, MPI_COMM_WORLD, ierr)
     else
-      do k = 1, time_steps
-        diff_density(k) = diff_density(k) + (density(psi(i, k, 1)) - density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
-      end do
+      do k = 1, time_steps; do l = 1, N_basis
+        population(k, l) = population(k, l) + density(psi(i, k, l)) / (n_traj_per_para * num_procs)
+      end do; end do
       do j = 1, num_procs - 1
         call MPI_RECV(psi(i, :, :), time_steps * N_basis, MPI_DOUBLE_COMPLEX, j, i, MPI_COMM_WORLD, stat, ierr)
-        do k = 1, time_steps
-          diff_density(k) = diff_density(k) + (density(psi(i, k, 1)) - density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
-        end do
+        do k = 1, time_steps; do l = 1, N_basis
+          population(k, l) = population(k, l) + density(psi(i, k, l)) / (n_traj_per_para * num_procs)
+        end do; end do
       end do
     end if
   end do
@@ -49,11 +49,18 @@ program dynamics
 
   if(my_id == 0) then
     open(22, file = 'result.dat')
-    write(22, '(2f14.7)') 0.0d0, density(psi0(1)) - density(psi0(2))
-    time = interval_time
+    write(22, '(f14.7)', advance = 'no') 0.0d0
+    do i = 1, N_basis
+      write(22, '(f14.7)', advance = 'no') density(psi0(i))
+    end do
+    write(22, *)
     do i = 1, time_steps
-      write(22, '(2f14.7)') time, diff_density(i)
-      time = time + interval_time
+      time = i * interval_time
+      write(22, '(f14.7)', advance = 'no') time
+      do j = 1, N_basis
+        write(22, '(f14.7)', advance = 'no') population(i, j)
+      end do
+      write(22, *)
     end do
   end if
   close(11)
