@@ -11,7 +11,7 @@ program spin_boson
   double precision, allocatable :: diff_density(:)
   
   call initial()
-  allocate(stat(N_basis * time_steps))
+  allocate(stat(N_basis))
   allocate(diff_density(time_steps))
   call discretization()
 
