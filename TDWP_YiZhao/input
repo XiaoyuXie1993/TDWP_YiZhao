@@ -6,4 +6,4 @@ quantum          T
 ! time evolution part
 time steps    1000
 total time    15.0
-trajectory    5000
+trajectory    1000

@@ -5,12 +5,13 @@ program spin_boson
   use mpi
 
   integer :: ierr, num_procs, my_id, n_traj_per_para
-  integer :: stat(N_basis)
+  integer, allocatable :: stat(:)
   double precision :: density
   double complex, allocatable :: psi(:, :, :)
   double precision, allocatable :: diff_density(:)
   
   call initial()
+  allocate(stat(N_basis * time_steps))
   allocate(diff_density(time_steps))
   call discretization()
 
@@ -30,7 +31,7 @@ program spin_boson
 !    call Runge_Kutta(time_steps, total_time, N_basis, psi0, psi(i, :, :))
     call Chebyshev(time_steps, total_time, N_basis, psi0, psi(i, :, :))
     if(my_id /= 0) then
-      call MPI_SEND(psi(i, :, :), time_steps * N_basis, MPI_DOUBLE_COMPLEX, 0, i, MPI_COMM_WORLD, stat, ierr)
+      call MPI_SEND(psi(i, :, :), time_steps * N_basis, MPI_DOUBLE_COMPLEX, 0, i, MPI_COMM_WORLD, ierr)
     else
       do k = 1, time_steps
         diff_density(k) = diff_density(k) + (density(psi(i, k, 1)) - density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
