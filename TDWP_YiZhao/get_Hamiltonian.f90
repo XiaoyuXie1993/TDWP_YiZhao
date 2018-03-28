@@ -4,16 +4,16 @@ subroutine get_Hamiltonian(t, Hamiltonian)
   use spectral_density
 
   double precision, intent(in) :: t
-  double precision, intent(out) :: Hamiltonian(n_basis, n_basis)
-  double precision :: delta_H(n_basis, n_basis)
+  double precision, intent(out) :: Hamiltonian(N_basis, N_basis)
+  double precision :: delta_H(N_basis, N_basis)
 
   delta_H = 0.0d0
   
-  do i = 1, N_basis
+  do i1 = 1, N_basis; do i2 = 1, N_basis
     do j = 1, N_omega
-      delta_H(i, i) = delta_H(i, i) + 2.0d0 * dsqrt(S(j) * hbar * interval_omega) * dcos(j * interval_omega * t + phi(i, j))
+      delta_H(i1, i2) = delta_H(i1, i2) + 2.0d0 * dsqrt(S(i1, i2, j) * hbar * interval_omega) * dcos(j * interval_omega * t + phi(i1, i2, j))
     end do
-  end do
+  end do; end do
   
   Hamiltonian = H0 + delta_H
 
@@ -26,19 +26,15 @@ subroutine discretization()
   use spectral_density
 
   double precision :: omega
-  
-  interval_omega = omega_max / N_omega
 
   do i = 1, N_omega
     omega = i * interval_omega
-    SP(i) = pi * 0.5d0 * alpha * omega * dexp(- omega / omega_c)
-!    write(22, *) i, SP(i)
 !quantum
     if(check_quantum) then
-      S(i) = SP(i) / (pi * ( 1 - dexp(-beta * hbar * omega)))
+      S(:, :, i) = SP(:, :, i) / (pi * ( 1 - dexp(-beta * hbar * omega)))
 !classic
     else
-      S(i) = SP(i) / (pi * beta * hbar * omega)
+      S(:, :, i) = SP(:, :, i) / (pi * beta * hbar * omega)
     end if
 !    do j = 1, N_basis
 !      call random_number(phi(j, i))

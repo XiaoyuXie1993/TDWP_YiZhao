@@ -1,9 +1,17 @@
+! Hamiltonian
+number of states    5
+0.000 0.000 0.000 0.000 0.000
+0.000 0.000 0.000 0.000 0.000
+0.000 0.000 0.000 0.000 0.000
+0.000 0.000 0.000 0.000 0.000
+0.000 0.000 0.000 0.000 0.000
 ! spectral density part
-alpha          0.1
-omega_c        7.5
-beta           5.0
-quantum          T
-! time evolution part
-time steps    1000
-total time    15.0
-trajectory    5000
+number of omega     7000
+interval of freq    0.50
+temperature         298.0
+if quantum          T
+! time evolution part (with fs)
+time steps          1000
+total time          15.0
+number of trajs     5000
+initial state       1.00  0.00  0.00  0.00  0.00
