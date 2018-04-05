@@ -1,6 +1,6 @@
 ! spectral density part
-eta              0.5
-omega_c          5.0
+alpha            0.1
+omega_c          7.5
 beta             0.5
 quantum          T
 ! time evolution part

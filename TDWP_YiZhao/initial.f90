@@ -9,7 +9,7 @@ subroutine initial()
 ! paramters in spectral_density
   read(11, *)
   read(11, '(A)', advance = 'no') ch
-  read(11, *) eta
+  read(11, *) alpha
   read(11, '(A)', advance = 'no') ch
   read(11, *) omega_c
   read(11, '(A)', advance = 'no') ch

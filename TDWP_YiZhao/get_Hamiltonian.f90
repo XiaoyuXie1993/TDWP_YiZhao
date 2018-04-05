@@ -31,7 +31,7 @@ subroutine discretization()
 
   do i = 1, N_omega
     omega = i * interval_omega
-      SP(i) = eta * omega * omega_c / (omega ** 2 + omega_c ** 2)
+      SP(i) = pi * 0.5d0 * alpha * omega * dexp(- omega / omega_c)
 !    write(22, *) i, SP(i)
 !quantum
     if(check_quantum) then

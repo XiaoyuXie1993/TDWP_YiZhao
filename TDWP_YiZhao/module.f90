@@ -23,8 +23,8 @@ module spectral_density
 
   use Hamiltonian_electronic
   
-!! parameters of Debye-Drude spectral density J(omega) = eta * omega * omega_c / (omega ^ 2 + omega_c ^ 2)
-  double precision :: eta, omega_c
+!! parameters of Ohmic spectral density J(omega) = pi / 2 * alpha * omega * exp(-omega / omega_c)
+  double precision :: alpha, omega_c
   double precision :: beta
 !! parameters for discretization of spectral density
   integer :: N_omega
