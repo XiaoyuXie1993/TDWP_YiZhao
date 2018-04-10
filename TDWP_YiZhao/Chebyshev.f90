@@ -7,17 +7,49 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
   double precision, intent(in) :: t_total
   double complex, intent(in) :: y0(n_eq)
   double complex, intent(out) :: y(n_time, n_eq)
-  double precision :: time, interval!, a, b
+  double precision :: time, time0, interval0, interval
 !  double precision :: tx(n_eq, n_eq)
 !  double precision :: jt
   double precision :: Hamiltonian(n_eq, n_eq)
+  double precision :: theta, theta0
+  parameter(theta0 = 0.02d0)
   double complex :: U(n_eq, n_eq)
+  double complex :: tmp1(n_eq), tmp2(n_eq)
+  double complex :: alpha, beta
 
-  interval = t_total / n_time
+  interval0 = t_total / n_time
+  alpha = 1.0d0
+  beta = 0.0d0
   
+  tmp1 = y0
   do i = 1, n_time
-    time = i * interval
-    call get_Hamiltonian(time, Hamiltonian)
+    time0 = (i - 1) * interval0
+    call get_Hamiltonian(time0, Hamiltonian)
+    call expansion_Hamiltonian(n_eq, Hamiltonian, - interval0, U)
+    call zgemm('N', 'N', n_eq, 1, n_eq, alpha, U, n_eq, tmp1, n_eq, beta, tmp2, n_eq)
+!    write(22, *) i, theta(n_eq, tmp1, tmp2)
+    n_step = int(theta(n_eq, tmp1, tmp2) / theta0) + 1
+!    write(22, *) i, n_step
+    if(n_step /= 1) then
+      interval = interval0 / n_step
+!      write(*, *) n_step, interval
+      j = 1
+      do
+        call expansion_Hamiltonian(n_eq, Hamiltonian, -interval, U)
+        call zgemm('N', 'N', n_eq, 1, n_eq, alpha, U, n_eq, tmp1, n_eq, beta, tmp2, n_eq)
+!        write(*, '(2i4, 4f10.5)') i, j, tmp2(:)
+        if(j >= n_step) exit
+        tmp1 = tmp2
+        time = time0 + j * interval
+        j = j + 1
+        call get_Hamiltonian(time, Hamiltonian)
+      end do
+    end if
+!    if(i > 4) stop
+    y(i, :) = tmp2
+!    write(*, '(i4, 4f10.5)') i, y(i, :)
+    tmp1 = tmp2
+!    write(*, '(i4, 4f10.5)') i, tmp1
 !    call diagonal(n_eq, Hamiltonian, a, b)
 !    jt = - b * interval / hbar
 !    tx = Hamiltonian
@@ -27,14 +59,14 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
 !    tx = tx / b
 !    call expansion(n_eq, tx, jt, U)
 !    U = U * cdexp(dcmplx(0.0d0, -1.0d0) * interval * a / hbar)
-    call expansion_Hamiltonian(n_eq, Hamiltonian, - interval, U)
-    if(i == 1) then
-      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y0, n_eq, 0.0d0, y(i, :), n_eq)
-    else
-      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y(i - 1, :), n_eq, 0.0d0, y(i, :), n_eq)
-    end if
+!    call expansion_Hamiltonian(n_eq, Hamiltonian, - interval, U)
+!    if(i == 1) then
+!      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y0, n_eq, 0.0d0, y(i, :), n_eq)
+!    else
+!      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y(i - 1, :), n_eq, 0.0d0, y(i, :), n_eq)
+!    end if
   end do
-
+!  stop
 
 end subroutine
 
@@ -187,4 +219,22 @@ double precision function pBessel(x, n, m)
     pBessel = pBessel * (-x * 0.50d0) / i
   end do
   
+end function
+
+! rotation angle between two complex arrays array1 and array2
+double precision function theta(n_array, array1, array2)
+
+  integer, intent(in) :: n_array
+  double complex, intent(in) :: array1(n_array), array2(n_array)
+  double complex :: overlap, alpha, beta, norm1, norm2
+
+  alpha = 1.0d0
+  beta = 0.0d0
+  
+  call zgemm('C', 'N', 1, 1, n_array, alpha, array1, n_array, array2, n_array, beta, overlap, 1)
+  call zgemm('C', 'N', 1, 1, n_array, alpha, array1, n_array, array1, n_array, beta, norm1, 1)
+  call zgemm('C', 'N', 1, 1, n_array, alpha, array1, n_array, array1, n_array, beta, norm2, 1)
+  
+  theta = dacos(dreal(overlap) / dsqrt(dreal(norm1) * dreal(norm2)))
+
 end function
