@@ -28,23 +28,23 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
     call expansion_Hamiltonian(n_eq, Hamiltonian, - interval0, U)
     call zgemm('N', 'N', n_eq, 1, n_eq, alpha, U, n_eq, tmp1, n_eq, beta, tmp2, n_eq)
 !    write(22, *) i, theta(n_eq, tmp1, tmp2)
-    n_step = int(theta(n_eq, tmp1, tmp2) / theta0) + 1
-!    write(22, *) i, n_step
-    if(n_step /= 1) then
-      interval = interval0 / n_step
-!      write(*, *) n_step, interval
-      j = 1
-      do
-        call expansion_Hamiltonian(n_eq, Hamiltonian, -interval, U)
-        call zgemm('N', 'N', n_eq, 1, n_eq, alpha, U, n_eq, tmp1, n_eq, beta, tmp2, n_eq)
-!        write(*, '(2i4, 4f10.5)') i, j, tmp2(:)
-        if(j >= n_step) exit
-        tmp1 = tmp2
-        time = time0 + j * interval
-        j = j + 1
-        call get_Hamiltonian(time, Hamiltonian)
-      end do
-    end if
+!    n_step = int(theta(n_eq, tmp1, tmp2) / theta0) + 1
+!!    write(22, *) i, n_step
+!    if(n_step /= 1) then
+!      interval = interval0 / n_step
+!!      write(*, *) n_step, interval
+!      j = 1
+!      do
+!        call expansion_Hamiltonian(n_eq, Hamiltonian, -interval, U)
+!        call zgemm('N', 'N', n_eq, 1, n_eq, alpha, U, n_eq, tmp1, n_eq, beta, tmp2, n_eq)
+!!        write(*, '(2i4, 4f10.5)') i, j, tmp2(:)
+!        if(j >= n_step) exit
+!        tmp1 = tmp2
+!        time = time0 + j * interval
+!        j = j + 1
+!        call get_Hamiltonian(time, Hamiltonian)
+!      end do
+!    end if
 !    if(i > 4) stop
     y(i, :) = tmp2
 !    write(*, '(i4, 4f10.5)') i, y(i, :)
@@ -66,7 +66,6 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
 !      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y(i - 1, :), n_eq, 0.0d0, y(i, :), n_eq)
 !    end if
   end do
-!  stop
 
 end subroutine
 

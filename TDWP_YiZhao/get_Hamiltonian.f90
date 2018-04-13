@@ -17,10 +17,12 @@ subroutine get_Hamiltonian(t, Hamiltonian)
   
   Hamiltonian = H0 + delta_H
 
+!  write(22, '(3f10.5)') t, Hamiltonian(1, 1), Hamiltonian(2, 2)
+  
 end subroutine
 
 !!Ohmic spectral density
-subroutine discretization()
+subroutine discretization() 
 
   use constants
   use spectral_density
