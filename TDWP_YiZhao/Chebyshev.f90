@@ -14,19 +14,19 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
   double precision :: theta, theta0
   parameter(theta0 = 0.02d0)
   double complex :: U(n_eq, n_eq)
-  double complex :: tmp1(n_eq), tmp2(n_eq)
-  double complex :: alpha, beta
+!  double complex :: tmp1(n_eq), tmp2(n_eq)
+  double complex :: alpha0, beta0
 
   interval0 = t_total / n_time
-  alpha = 1.0d0
-  beta = 0.0d0
+  alpha0 = 1.0d0
+  beta0 = 0.0d0
   
-  tmp1 = y0
+!  tmp1 = y0
   do i = 1, n_time
     time0 = (i - 1) * interval0
     call get_Hamiltonian(time0, Hamiltonian)
-    call expansion_Hamiltonian(n_eq, Hamiltonian, - interval0, U)
-    call zgemm('N', 'N', n_eq, 1, n_eq, alpha, U, n_eq, tmp1, n_eq, beta, tmp2, n_eq)
+    call expansion_Hamiltonian(n_eq, Hamiltonian, -interval0, U)
+!    call zgemm('N', 'N', n_eq, 1, n_eq, alpha0, U, n_eq, tmp1, n_eq, beta0, tmp2, n_eq)
 !    write(22, *) i, theta(n_eq, tmp1, tmp2)
 !    n_step = int(theta(n_eq, tmp1, tmp2) / theta0) + 1
 !!    write(22, *) i, n_step
@@ -46,9 +46,9 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
 !      end do
 !    end if
 !    if(i > 4) stop
-    y(i, :) = tmp2
+!    y(i, :) = tmp2
 !    write(*, '(i4, 4f10.5)') i, y(i, :)
-    tmp1 = tmp2
+!    tmp1 = tmp2
 !    write(*, '(i4, 4f10.5)') i, tmp1
 !    call diagonal(n_eq, Hamiltonian, a, b)
 !    jt = - b * interval / hbar
@@ -60,13 +60,13 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
 !    call expansion(n_eq, tx, jt, U)
 !    U = U * cdexp(dcmplx(0.0d0, -1.0d0) * interval * a / hbar)
 !    call expansion_Hamiltonian(n_eq, Hamiltonian, - interval, U)
-!    if(i == 1) then
-!      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y0, n_eq, 0.0d0, y(i, :), n_eq)
-!    else
-!      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y(i - 1, :), n_eq, 0.0d0, y(i, :), n_eq)
-!    end if
+    if(i == 1) then
+      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y0, n_eq, 0.0d0, y(i, :), n_eq)
+    else
+      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y(i - 1, :), n_eq, 0.0d0, y(i, :), n_eq)
+    end if
   end do
-
+  
 end subroutine
 
 !! calculate exp(i * H * t / hbar) using Chebyshev polynomials methods for real Hamiltonian

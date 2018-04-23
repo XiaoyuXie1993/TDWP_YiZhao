@@ -37,15 +37,39 @@ subroutine initialphi()
   use constants
   use spectral_density
   
+  double precision :: U1(N_omega), U2(N_omega)
+  double precision :: tmp1(N_omega), tmp2(N_omega)
+  
   do i = 1, N_basis
+    call random_number(U1)
+    call random_number(U2)
+    tmp1 = dsqrt(-2.0d0 * dlog(U1))
+    tmp2 = 2.0d0 * pi * U2
+    U1 = tmp1 * dcos(tmp2)
+    U2 = tmp1 * dsin(tmp2)
     do j = 1, N_omega
-      call random_number(phi(i, j))
-      phi(i, j) = phi(i, j) * 2.0d0 * pi
+!      read(22, '(2i4, 2f14.7)') ni, nj, phi(i, j, 1), phi(i, j, 2)
+      phi(i, j, 1) = U1(j)
+      phi(i, j, 2) = U2(j)
     end do
   end do
   
 end subroutine
-  
+
+!subroutine initialphi()
+!
+!  use constants
+!  use spectral_density
+!  
+!  do i = 1, N_basis
+!    do j = 1, N_omega
+!      call random_number(phi(i, j, 1))
+!      phi(i, j, 1) = phi(i, j, 1) * 2.0d0 * pi
+!    end do
+!  end do
+!  
+!end subroutine
+
 !! initial random seed from fortran manual
 subroutine init_random_seed(pid)
 

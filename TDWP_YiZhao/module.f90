@@ -32,7 +32,7 @@ module spectral_density
   double precision :: interval_omega, omega_max
   parameter(omega_max = 100.0d0)
   double precision :: SP(N_omega), S(N_omega)
-  double precision :: phi(N_basis, N_omega)
+  double precision :: phi(N_basis, N_omega, 2)
   logical :: check_quantum
 
 end module
