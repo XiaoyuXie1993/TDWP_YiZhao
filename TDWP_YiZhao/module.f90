@@ -12,10 +12,8 @@ module Hamiltonian_electronic
 !! parameters of electronic Hamiltonian (two level system with spin-boson model)
 ! basis set of electronic states
   integer :: N_basis
-  parameter(N_basis = 2)
 ! Hamiltonian elements
-  double precision :: H0(n_basis, n_basis)
-  parameter(H0 = (/0.0d0, 1.0d0, 1.0d0, 0.0d0/))
+  double precision, allocatable :: H0(:, :)
 
 end module
 
@@ -28,12 +26,9 @@ module spectral_density
   double precision :: beta
 !! parameters for discretization of spectral density
   integer :: N_omega
-  parameter(N_omega = 10000)
-  double precision :: interval_omega, omega_max
-  parameter(omega_max = 100.0d0)
-  double precision :: SP(N_omega), S(N_omega)
-  double precision :: phi(N_basis, N_omega, 2)
-  logical :: check_quantum
+  double precision :: interval_omega
+  double precision, allocatable :: n_therm(:), h(:)
+  double precision, allocatable :: phi(:, :)
 
 end module
 
@@ -41,15 +36,11 @@ module time_evolution
 
   use Hamiltonian_electronic
 
-!! parameters of initial electronic states and time-dependent simulation
-  double complex :: psi0(N_basis)
-  parameter(psi0 = (/1.0d0, 0.0d0/))
+!! parameters of time-dependent simulation and initial electronic states
   integer :: time_steps
-!  parameter(time_steps = 1000)
   double precision :: interval_time, total_time
-!  parameter(total_time = 15.0d0)
+  double complex, allocatable :: psi0(:)
 !! parameters of statistic average
   integer :: N_statistic
-!  parameter(N_statistic = 500)
 
 end module

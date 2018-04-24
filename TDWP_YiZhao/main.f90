@@ -5,17 +5,15 @@ program spin_boson
   use mpi
 
   integer :: ierr, num_procs, my_id, n_traj_per_para
-  integer, allocatable :: stat(:)
   double precision :: density
+  integer, allocatable :: stat(:)
+  double precision, allocatable :: diff_density(:), total_density(:)
   double complex, allocatable :: psi(:, :, :)
-  double precision, allocatable :: diff_density(:)
   
   call initial()
   allocate(stat(N_basis))
-  allocate(diff_density(time_steps))
+  allocate(diff_density(time_steps), total_density(time_steps))
   call discretization()
-
-!  write(*, '(i4, 2f14.7)') time_steps, interval_time, total_time
 
   call MPI_INIT(ierr)
   call MPI_COMM_SIZE(MPI_COMM_WORLD, num_procs, ierr)
@@ -25,7 +23,6 @@ program spin_boson
 
   diff_density = 0.0d0
   do i = 1, n_traj_per_para
-!  write(*, *) i, my_id
     call init_random_seed(my_id)
     call initialphi()
 !    call Runge_Kutta(time_steps, total_time, N_basis, psi0, psi(i, :, :))
@@ -35,15 +32,19 @@ program spin_boson
     else
       do k = 1, time_steps
         diff_density(k) = diff_density(k) + (density(psi(i, k, 1)) - density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
+        total_density(k) = diff_density(k) + (density(psi(i, k, 1)) + density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
       end do
       do j = 1, num_procs - 1
         call MPI_RECV(psi(i, :, :), time_steps * N_basis, MPI_DOUBLE_COMPLEX, j, i, MPI_COMM_WORLD, stat, ierr)
         do k = 1, time_steps
           diff_density(k) = diff_density(k) + (density(psi(i, k, 1)) - density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
+          total_density(k) = diff_density(k) + (density(psi(i, k, 1)) + density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
         end do
       end do
     end if
   end do
+  
+  deallocate(psi)
   
   call MPI_FINALIZE(ierr)
 
@@ -52,12 +53,12 @@ program spin_boson
     write(22, '(2f14.7)') 0.0d0, density(psi0(1)) - density(psi0(2))
     time = interval_time
     do i = 1, time_steps
-      write(22, '(2f14.7)') time, diff_density(i)
+      write(22, '(2f14.7)') time, diff_density(i) / total_density(i)
       time = time + interval_time
     end do
   end if
   close(11)
-
+  
 end program 
 
 ! density (population) of a electronic state  

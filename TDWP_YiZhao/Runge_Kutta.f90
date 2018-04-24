@@ -34,9 +34,7 @@ subroutine Runge_Kutta(n_time, t_total, n_eq, y0, y)
     else
       call solve(n_eq, y(i - 1, :), time, interval, y(i, :))
     end if
-!    write(*, *) i, density(y(i, 1)) + density(y(i, 2))
   end do
-!stop
 
 end subroutine
 
@@ -47,17 +45,19 @@ subroutine solve(n_eq, y, t, interval, newy)
   double complex, intent(in) :: y(n_eq)
   double precision, intent(in) :: t, interval
   double complex, intent(out) :: newy(n_eq)
-  double complex :: K1(n_eq), K2(n_eq), K3(n_eq), K4(n_eq)
+  double complex, allocatable :: K1(:), K2(:), K3(:), K4(:)
 
+  allocate(K1(n_eq), K2(n_eq), K3(n_eq), K4(n_eq))
   call diff_func(n_eq, K1, y, t)
   call diff_func(n_eq, K2, y + 0.5d0 * interval * K1, t + 0.5d0 * interval)
   call diff_func(n_eq, K3, y + 0.5d0 * interval * K2, t + 0.5d0 * interval)
   call diff_func(n_eq, K4, y + interval * K3, t + interval)
 
   newy = y + interval / 6.0d0 * (K1 + 2.0d0 * K2 + 2.0d0 * K3 + K4)
+  
+  deallocate(K1, K2, K3, K4)
 
 end subroutine
-
 
 ! time-dependent Schrodinger equation
 subroutine diff_func(n_eq, dy, y, t)
@@ -68,12 +68,20 @@ subroutine diff_func(n_eq, dy, y, t)
   double complex, intent(in) :: y(n_eq)
   double precision, intent(in) :: t
   double complex, intent(out) :: dy(n_eq)
-  double precision :: Hamiltonian(n_eq, n_eq)
-  
+  double precision, allocatable :: Hamiltonian(:, :)
+  double complex :: alpha0, beta0
+
+  alpha0 = dcmplx(1.0d0, 0.0d0)
+  beta0 = 0.0d0
+
+  allocate(Hamiltonian(n_eq, n_eq))
+
   call get_Hamiltonian(t, Hamiltonian)
   
-  call dzgemm('N', 'N', n_eq, n_eq, n_eq, 1.0d0, Hamiltonian, n_eq, y, n_eq, 0.0d0, dy, n_eq)
-  
-  dy = 1 / hbar * cmplx(0.0d0, -1.0d0) * dy
+  call dzgemm('N', 'N', n_eq, n_eq, n_eq, alpha0, Hamiltonian, n_eq, y, n_eq, beta0, dy, n_eq)
+
+  deallocate(Hamiltonian)
+
+  dy = dcmplx(0.0d0, -1.0d0) * dy / hbar
 
 end subroutine

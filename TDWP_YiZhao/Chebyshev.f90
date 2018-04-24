@@ -7,65 +7,58 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
   double precision, intent(in) :: t_total
   double complex, intent(in) :: y0(n_eq)
   double complex, intent(out) :: y(n_time, n_eq)
-  double precision :: time, time0, interval0, interval
-!  double precision :: tx(n_eq, n_eq)
-!  double precision :: jt
-  double precision :: Hamiltonian(n_eq, n_eq)
-  double precision :: theta, theta0
+  double precision :: time0, interval0, time, interval
+  double precision :: theta0, theta
   parameter(theta0 = 0.02d0)
-  double complex :: U(n_eq, n_eq)
-!  double complex :: tmp1(n_eq), tmp2(n_eq)
   double complex :: alpha0, beta0
+  double complex, allocatable :: tmp1(:), tmp2(:)
+  double precision, allocatable :: Hamiltonian(:, :)
+  double complex, allocatable :: U(:, :)
 
   interval0 = t_total / n_time
-  alpha0 = 1.0d0
+  alpha0 = dcmplx(1.0d0, 0.0d0)
   beta0 = 0.0d0
+  allocate(tmp1(n_eq), tmp2(n_eq))
+  allocate(Hamiltonian(n_eq, n_eq))
+  allocate(U(n_eq, n_eq))
   
-!  tmp1 = y0
+  tmp1 = y0
   do i = 1, n_time
     time0 = (i - 1) * interval0
     call get_Hamiltonian(time0, Hamiltonian)
     call expansion_Hamiltonian(n_eq, Hamiltonian, -interval0, U)
-!    call zgemm('N', 'N', n_eq, 1, n_eq, alpha0, U, n_eq, tmp1, n_eq, beta0, tmp2, n_eq)
+    call zgemm('N', 'N', n_eq, 1, n_eq, alpha0, U, n_eq, tmp1, n_eq, beta0, tmp2, n_eq)
 !    write(22, *) i, theta(n_eq, tmp1, tmp2)
-!    n_step = int(theta(n_eq, tmp1, tmp2) / theta0) + 1
+    n_step = int(theta(n_eq, tmp1, tmp2) / theta0) + 1
 !!    write(22, *) i, n_step
-!    if(n_step /= 1) then
-!      interval = interval0 / n_step
+    if(n_step /= 1) then
+      interval = interval0 / n_step
 !!      write(*, *) n_step, interval
-!      j = 1
-!      do
-!        call expansion_Hamiltonian(n_eq, Hamiltonian, -interval, U)
-!        call zgemm('N', 'N', n_eq, 1, n_eq, alpha, U, n_eq, tmp1, n_eq, beta, tmp2, n_eq)
+      j = 1
+      do
+        call expansion_Hamiltonian(n_eq, Hamiltonian, -interval, U)
+        call zgemm('N', 'N', n_eq, 1, n_eq, alpha0, U, n_eq, tmp1, n_eq, beta0, tmp2, n_eq)
 !!        write(*, '(2i4, 4f10.5)') i, j, tmp2(:)
-!        if(j >= n_step) exit
-!        tmp1 = tmp2
-!        time = time0 + j * interval
-!        j = j + 1
-!        call get_Hamiltonian(time, Hamiltonian)
-!      end do
-!    end if
-!    if(i > 4) stop
-!    y(i, :) = tmp2
-!    write(*, '(i4, 4f10.5)') i, y(i, :)
-!    tmp1 = tmp2
-!    write(*, '(i4, 4f10.5)') i, tmp1
-!    call diagonal(n_eq, Hamiltonian, a, b)
-!    jt = - b * interval / hbar
-!    tx = Hamiltonian
-!    do j = 1, n_eq
-!      tx(j, j) = tx(j, j) - a
-!    end do
-!    tx = tx / b
-!    call expansion(n_eq, tx, jt, U)
-!    U = U * cdexp(dcmplx(0.0d0, -1.0d0) * interval * a / hbar)
-!    call expansion_Hamiltonian(n_eq, Hamiltonian, - interval, U)
-    if(i == 1) then
-      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y0, n_eq, 0.0d0, y(i, :), n_eq)
-    else
-      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y(i - 1, :), n_eq, 0.0d0, y(i, :), n_eq)
+        if(j == n_step) exit
+        tmp1 = tmp2
+        time = time0 + j * interval
+        j = j + 1
+        call get_Hamiltonian(time, Hamiltonian)
+      end do
     end if
+    y(i, :) = tmp2
+    tmp1 = tmp2
+!    call expansion_Hamiltonian(n_eq, Hamiltonian, - interval, U)
+!    if(i == 1) then
+!      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y0, n_eq, 0.0d0, y(i, :), n_eq)
+!    else
+!      call zgemm('N', 'N', n_eq, 1, n_eq, 1.0d0, U, n_eq, y(i - 1, :), n_eq, 0.0d0, y(i, :), n_eq)
+!    end if
   end do
+  
+  deallocate(tmp1, tmp2)
+  deallocate(Hamiltonian)
+  deallocate(U)
   
 end subroutine
 
