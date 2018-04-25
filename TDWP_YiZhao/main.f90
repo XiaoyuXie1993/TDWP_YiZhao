@@ -22,6 +22,7 @@ program spin_boson
   call MPI_COMM_RANK(MPI_COMM_WORLD, my_id, ierr)
 
   diff_density = 0.0d0
+  total_density = 0.0d0
   do i = 1, n_traj_per_para
     call init_random_seed(my_id)
     call initialphi()
@@ -32,13 +33,13 @@ program spin_boson
     else
       do k = 1, time_steps
         diff_density(k) = diff_density(k) + (density(psi(i, k, 1)) - density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
-        total_density(k) = diff_density(k) + (density(psi(i, k, 1)) + density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
+        total_density(k) = total_density(k) + (density(psi(i, k, 1)) + density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
       end do
       do j = 1, num_procs - 1
         call MPI_RECV(psi(i, :, :), time_steps * N_basis, MPI_DOUBLE_COMPLEX, j, i, MPI_COMM_WORLD, stat, ierr)
         do k = 1, time_steps
           diff_density(k) = diff_density(k) + (density(psi(i, k, 1)) - density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
-          total_density(k) = diff_density(k) + (density(psi(i, k, 1)) + density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
+          total_density(k) = total_density(k) + (density(psi(i, k, 1)) + density(psi(i, k, 2))) / (n_traj_per_para * num_procs)
         end do
       end do
     end if

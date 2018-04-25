@@ -12,4 +12,4 @@ beta                     5.0
 time steps               1500
 total time               15.0
 trajectory               10000
-initial state            (1.00, 0.00)  (0.00, 1.00)
+initial state            (1.00, 0.00)  (0.00, 0.00)
