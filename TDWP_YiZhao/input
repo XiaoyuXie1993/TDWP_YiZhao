@@ -5,9 +5,9 @@ number of states         2
 ! spectral density part
 number of modes          10000
 interval of freq         0.01
-alpha                    0.1
-omega_c                  7.5
-beta                     5.0
+eta                      0.5
+omega_c                  5.0
+beta                     0.5
 ! time evolution part
 time steps               1500
 total time               15.0

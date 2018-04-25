@@ -21,7 +21,7 @@ subroutine initial()
   read(11, '(A)', advance = 'no') ch
   read(11, *) interval_omega
   read(11, '(A)', advance = 'no') ch
-  read(11, *) alpha
+  read(11, *) eta
   read(11, '(A)', advance = 'no') ch
   read(11, *) omega_c
   read(11, '(A)', advance = 'no') ch
