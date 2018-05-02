@@ -1,15 +1,17 @@
-module constants
+﻿module constants
 
 !! constants
-  double precision :: pi, hbar
+  double precision :: pi, hbar, kB
   parameter(pi = 3.1415926535897932)
-  parameter(hbar = 1.0d0)
+! reduced Planck constant with eV * fs
+  parameter (hbar = 0.658211951440)
+! Boltzmann constant with eV * K-1
+  parameter (kB = 0.000086173304)
 
 end module
 
 module Hamiltonian_electronic
 
-!! parameters of electronic Hamiltonian (two level system with spin-boson model)
 ! basis set of electronic states
   integer :: N_basis
 ! Hamiltonian elements
@@ -21,14 +23,14 @@ module spectral_density
 
   use Hamiltonian_electronic
   
-!! parameters of Ohmic spectral density J(omega) = pi / 2 * alpha * omega * exp(-omega / omega_c)
+!! parameters of Ohmic spectral density J(omega) = 2 * eta * omega * omega_c / (omega ** 2 + omega_c ** 2)
   double precision :: eta, omega_c
   double precision :: beta
 !! parameters for discretization of spectral density
   integer :: N_omega
   double precision :: interval_omega
   double precision, allocatable :: n_therm(:), h(:)
-  double precision, allocatable :: phi(:, :)
+  double precision, allocatable :: phi(:, :, :)
 
 end module
 

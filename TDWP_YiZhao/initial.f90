@@ -1,8 +1,11 @@
 subroutine initial()
 
+  use constants
   use spectral_density
   use time_evolution
   
+  double precision :: wntoeV, aveE, temperature
+  parameter (wntoeV = 0.00012398425)
   character*20 :: ch
 
   open(11, file = 'input')
@@ -11,23 +14,30 @@ subroutine initial()
   read(11, '(A)', advance = 'no') ch
   read(11, *) N_basis
   allocate(H0(N_basis, N_basis))
+  aveE = 0.0d0
   do i = 1, N_basis
     read(11, *) H0(i, :)
+    aveE = aveE + H0(i, i) / N_basis
   end do
+  do i = 1, N_basis
+    H0(i, i) = H0(i, i) - aveE
+  end do
+  H0 = H0 * wntoeV
 ! paramters in spectral_density
   read(11, *)
   read(11, '(A)', advance = 'no') ch
   read(11, *) N_omega
   read(11, '(A)', advance = 'no') ch
-  read(11, *) interval_omega
-  read(11, '(A)', advance = 'no') ch
   read(11, *) eta
+  eta = eta * wntoeV
   read(11, '(A)', advance = 'no') ch
   read(11, *) omega_c
+  interval_omega = omega_c * 10.0d0 / N_omega
   read(11, '(A)', advance = 'no') ch
-  read(11, *) beta
+  read(11, *) temperature
+  beta = 1.0d0 / (kB * temperature)
   allocate(n_therm(N_omega), h(N_omega))
-  allocate(phi(N_omega, 2))
+  allocate(phi(N_basis, N_omega, 2))
 ! paramters in time_evolution
   read(11, *)
   read(11, '(A)', advance = 'no') ch
@@ -53,12 +63,14 @@ subroutine initialphi()
   
   allocate(U1(N_omega), U2(N_omega), tmp1(N_omega), tmp2(N_omega))
   
-  call random_number(U1)
-  call random_number(U2)
-  tmp1 = dsqrt(-2.0d0 * dlog(U1))
-  tmp2 = 2.0d0 * pi * U2
-  phi(:, 1) = tmp1 * dcos(tmp2)
-  phi(:, 2) = tmp1 * dsin(tmp2)
+  do i = 1, N_basis
+    call random_number(U1)
+    call random_number(U2)
+    tmp1 = dsqrt(-2.0d0 * dlog(U1))
+    tmp2 = 2.0d0 * pi * U2
+    phi(i, :, 1) = tmp1 * dcos(tmp2)
+    phi(i, :, 2) = tmp1 * dsin(tmp2)
+  end do
 
   deallocate(U1, U2, tmp1, tmp2)
   

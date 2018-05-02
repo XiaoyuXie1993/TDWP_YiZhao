@@ -5,23 +5,18 @@ subroutine get_Hamiltonian(t, Hamiltonian)
 
   double precision, intent(in) :: t
   double precision, intent(out) :: Hamiltonian(N_basis, N_basis)
-  double precision, allocatable :: x_operator(:, :)
-  double precision :: force, omega
-
-  allocate(x_operator(N_basis, N_basis))
-  x_operator = 0.0d0
-  x_operator(1, 1) = 1.0d0
-  x_operator(2, 2) = -1.0d0
+  double precision :: omega, force
   
-  force = 0.0d0
-  do i = 1, N_omega
-    omega = i * interval_omega
-    force = force + h(i) * dsqrt(2.0d0 * n_therm(i) + 1.0d0) * (phi(i, 1) * dcos(omega * t) + phi(i, 2) * dsin(omega * t))
+  Hamiltonian = H0
+  
+  do i = 1, N_basis
+    force = 0.0d0
+    do j = 1, N_omega
+      omega = j * interval_omega
+      force = force + h(j) * dsqrt(2.0d0 * n_therm(j) + 1.0d0) * (phi(i, j, 1) * dcos(omega * t) + phi(i, j, 2) * dsin(omega * t))
+    end do
+    Hamiltonian(i, i) = Hamiltonian(i, i) + force
   end do
-  
-  Hamiltonian = H0 + force * x_operator
-
-  deallocate(x_operator)
   
 end subroutine
 
@@ -35,7 +30,7 @@ subroutine discretization()
 
   do i = 1, N_omega
     omega = i * interval_omega
-    SP = eta * omega * omega_c / (omega ** 2.0d0 + omega_c ** 2.0d0)
+    SP = 2.0d0 * eta * omega * omega_c / (omega ** 2.0d0 + omega_c ** 2.0d0)
     n_therm(i) = 1.0d0 / (dexp(beta * hbar * omega) - 1.0d0)
     h(i) = dsqrt(SP * hbar * interval_omega / pi)
   end do

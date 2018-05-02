@@ -1,15 +1,19 @@
-! Hamiltonian part
-number of states         2
-  0.00  1.00
-  1.00  0.00
+! Hamiltonian part (unit: cm-1)
+number of states         7
+  12410.0      -87.7        5.5      -5.9       6.7      -13.7       -9.9
+    -87.7    12530.0       30.8       8.2       0.7       11.8        4.3
+      5.5       30.8    12210.0     -53.5      -2.2       -9.6        6.0
+     -5.9        8.2      -53.5   12320.0     -70.7      -17.0      -63.3
+      6.7        0.7       -2.2     -70.7   12480.0       81.1       -1.3
+    -13.7       11.8       -9.6     -17.0      81.1    12630.0       39.7
+     -9.9        4.3        6.0     -63.3      -1.3       39.7    12440.0
 ! spectral density part
-number of modes          10000
-interval of freq         0.01
-eta                      0.5
-omega_c                  5.0
-beta                     0.5
+number of modes          800
+eta / cm-1               35.0
+omega_c / fs-1           0.020
+temperature / K          300.0
 ! time evolution part
-time steps               1500
-total time               15.0
-trajectory               10000
-initial state            (1.00, 0.00)  (0.00, 0.00)
+time steps               1000
+total time / fs          1000
+trajectory               50000
+initial state            (1.00, 0.00)  (0.00, 0.00)  (0.00, 0.00)  (0.00, 0.00)  (0.00, 0.00)  (0.00, 0.00)  (0.00, 0.00)

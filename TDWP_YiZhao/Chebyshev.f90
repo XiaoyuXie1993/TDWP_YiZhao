@@ -9,7 +9,7 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
   double complex, intent(out) :: y(n_time, n_eq)
   double precision :: time0, interval0, time, interval
   double precision :: theta0, theta
-  parameter(theta0 = 0.02d0)
+  parameter(theta0 = 2.0d0)
   double complex :: alpha0, beta0
   double complex, allocatable :: tmp1(:), tmp2(:)
   double precision, allocatable :: Hamiltonian(:, :)
@@ -28,8 +28,8 @@ subroutine Chebyshev(n_time, t_total, n_eq, y0, y)
     call get_Hamiltonian(time0, Hamiltonian)
     call expansion_Hamiltonian(n_eq, Hamiltonian, -interval0, U)
     call zgemm('N', 'N', n_eq, 1, n_eq, alpha0, U, n_eq, tmp1, n_eq, beta0, tmp2, n_eq)
-!    write(22, *) i, theta(n_eq, tmp1, tmp2)
-    n_step = int(theta(n_eq, tmp1, tmp2) / theta0) + 1
+!    n_step = int(theta(n_eq, tmp1, tmp2) / theta0) + 1
+    n_step = 1
 !!    write(22, *) i, n_step
     if(n_step /= 1) then
       interval = interval0 / n_step
@@ -175,25 +175,35 @@ subroutine diagonal(n_Matrix, Matrix, ea, eb)
   integer, intent(in) :: n_Matrix
   double precision, intent(in) :: Matrix(n_Matrix, n_Matrix)
   double precision, intent(out) :: ea, eb
-  double precision :: eigenvalue(n_Matrix)
-  integer :: info, lwork, liwork, lwmax
-  parameter(lwmax = 100000)
-  integer :: iwork(lwmax)
-  double precision :: work(lwmax)
+  double precision, allocatable :: eigenvalue(:)
+  double precision, allocatable :: eigenvector(:, :)
+  integer :: info, lwork, liwork
+  integer, allocatable :: iwork(:)
+  double precision, allocatable :: work(:)
   
-  lwork = -1
-  liwork = -1
+  allocate(eigenvalue(n_Matrix))
+  allocate(eigenvector(n_Matrix, n_Matrix))
   
-  call dsyevd('N', 'L', n_Matrix, Matrix, n_Matrix, eigenvalue, work, lwork, iwork, liwork, info)
+  eigenvector = Matrix
   
-  lwork = min(lwmax, int(work(1)))
-  liwork = min(lwmax, iwork(1))
+  lwork = 2 * n ** 2 + 6 * n_Matrix + 1
+  liwork = 5 * n_Matrix + 3
   
-  call dsyevd('N', 'L', n_Matrix, Matrix, n_Matrix, eigenvalue, work, lwork, iwork, liwork, info)
+  allocate(iwork(liwork))
+  allocate(work(lwork))
+  
+  call dsyevd('N', 'L', n_Matrix, eigenvector, n_Matrix, eigenvalue, work, lwork, iwork, liwork, info)
+  
+  deallocate(work)
+  deallocate(iwork)
+  
+  deallocate(eigenvector)
   
   ea = 0.5d0 * (eigenvalue(n_Matrix) + eigenvalue(1))
   eb = 0.5d0 * (eigenvalue(n_Matrix) - eigenvalue(1))
 
+  deallocate(eigenvalue)
+  
 end subroutine
 
 double precision function pBessel(x, n, m)
