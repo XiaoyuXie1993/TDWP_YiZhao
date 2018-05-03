@@ -32,7 +32,7 @@ subroutine initial()
   eta = eta * wntoeV
   read(11, '(A)', advance = 'no') ch
   read(11, *) omega_c
-  interval_omega = omega_c * 10.0d0 / N_omega
+  interval_omega = omega_c * 100.0d0 / N_omega
   read(11, '(A)', advance = 'no') ch
   read(11, *) temperature
   beta = 1.0d0 / (kB * temperature)
