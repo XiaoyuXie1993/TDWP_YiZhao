@@ -24,7 +24,7 @@ program spin_boson
   diff_density = 0.0d0
   total_density = 0.0d0
   do i = 1, n_traj_per_para
-    call init_random_seed(my_id)
+    if(mod(i - 1, 50) == 0) call init_random_seed(my_id)
     call initialphi()
 !    call Runge_Kutta(time_steps, total_time, N_basis, psi0, psi(i, :, :))
     call Chebyshev(time_steps, total_time, N_basis, psi0, psi(i, :, :))
