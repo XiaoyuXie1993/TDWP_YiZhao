@@ -20,7 +20,7 @@ subroutine get_Hamiltonian(t, Hamiltonian)
   
 end subroutine
 
-!!Ohmic spectral density
+!! Debye spectral density
 subroutine discretization() 
 
   use constants
